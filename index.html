@@ -1,229 +1,122 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bouncing Popup Windows</title>
+<style>
+body {
+    margin: 0;
+    overflow: hidden;
+    background: #111;
+    height: 100vh;
+    width: 100vw;
+    font-family: sans-serif;
+}
 
-        <title>Screenshot by tanziran</title>
+/* Popup windows style */
+.popup {
+    position: absolute;
+    width: 300px;
+    height: 200px;
+    background: #222;
+    border: 3px solid #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(255,255,255,0.5);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
 
-        <meta property="og:title" content="Screenshot">
-        <meta property="og:url" content="https://">
-        <meta property="og:site_name" content="tanziran">
-        <meta property="og:image" content="https://tanziran.github.io/Killer-Jeff-for-html/lightshot.png">
-        <meta property="og:description" content="Captured with tanziran">
-        <meta property="og:type" content="website">
+.popup video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
 
-        <meta name="twitter:card" content="photo">
-        <meta name="twitter:title" content="Screenshot">
-        <meta name="twitter:site" content="@tanziran">
-        <meta name="twitter:description" content="Captured with tanziran">
-        <meta name="twitter:image:src" content="https://tanziran.github.io/Killer-Jeff-for-html/lightshot.png">
+/* Close button */
+.popup .close-btn {
+    position: absolute;
+    top: 2px;
+    right: 5px;
+    color: white;
+    background: rgba(255,0,0,0.7);
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-weight: bold;
+    padding: 2px 6px;
+    z-index: 10;
+}
+</style>
+</head>
+<body>
 
-        <link rel="preconnect" href="https://fonts.gstatic.com">
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;900&display=swap" rel="stylesheet">
+<script>
+// Configuration
+const NUM_WINDOWS = 5;
+const popups = [];
+const positions = [];
+const velocities = [];
 
-        <style type="text/css">
-            p {
-                margin: 0;
-            }
+// Create popup windows
+for (let i = 0; i < NUM_WINDOWS; i++) {
+    const popup = document.createElement("div");
+    popup.className = "popup";
 
-            *, *::before, *::after {
-                box-sizing: border-box;
-            }
+    // Close button
+    const closeBtn = document.createElement("button");
+    closeBtn.className = "close-btn";
+    closeBtn.innerText = "×";
+    closeBtn.onclick = () => popup.remove();
+    popup.appendChild(closeBtn);
 
-            .overlay, .scare {
-                position: fixed;
+    // Video
+    const video = document.createElement("video");
+    video.src = "./video.mp4";
+    video.autoplay = true;
+    video.loop = true;
+    video.muted = true;
+    video.playsInline = true;
+    popup.appendChild(video);
 
-                top: 0;
-                left: 0;
+    document.body.appendChild(popup);
 
-                height: 100vh;
-                width: 100vw;
-            }
+    // Initial random position and velocity
+    const x = Math.random() * (window.innerWidth - 300);
+    const y = Math.random() * (window.innerHeight - 200);
+    const dx = (Math.random() * 4 + 2) * (Math.random() < 0.5 ? 1 : -1);
+    const dy = (Math.random() * 4 + 2) * (Math.random() < 0.5 ? 1 : -1);
 
-            p.overlay-title {
-                font-size: 24px;
-                font-weight: 900;
-                color: black;
-                line-height: 1;
+    popups.push(popup);
+    positions.push({x, y});
+    velocities.push({dx, dy});
+}
 
-                margin-bottom: 16px;
-            }
+// Animate the popups
+function animate() {
+    popups.forEach((popup, i) => {
+        const {x, y} = positions[i];
+        const {dx, dy} = velocities[i];
+        const width = popup.offsetWidth;
+        const height = popup.offsetHeight;
 
-            .overlay-button {
-                display: inline-flex;
-                align-items: center;
+        // Bounce off edges
+        if (x + width >= window.innerWidth || x <= 0) velocities[i].dx *= -1;
+        if (y + height >= window.innerHeight || y <= 0) velocities[i].dy *= -1;
 
-                height: 40px;
+        positions[i].x += velocities[i].dx;
+        positions[i].y += velocities[i].dy;
 
-                padding-right: 24px;
-                padding-left: 24px;
+        popup.style.left = positions[i].x + "px";
+        popup.style.top = positions[i].y + "px";
+    });
 
-                font-size: 16px;
-                font-weight: 500;
-                line-height: 1;
+    requestAnimationFrame(animate);
+}
 
-                border-radius: 4px;
+animate();
+</script>
 
-                margin: 4px;
-
-                cursor: pointer;
-            }
-
-            .overlay-buttons-wrapper {
-                margin: 24px -8px -8px;
-            }
-
-            #accept-button {
-                background-color: rgb(132, 94, 194);
-
-                color: white;
-            }
-
-            #decline-button {
-                color: rgb(132, 94, 194);
-
-                border: 2px solid rgb(132, 94, 194);
-            }
-
-            p.overlay-description {
-                font-size: 16px;
-                font-weight: 400;
-                color: rgba(0, 0, 0, 0.5);
-                line-height: 1.25;
-
-                margin-bottom: 16px;
-            }
-
-            a.overlay-link {
-                display: inline-block;
-
-                text-decoration: none;
-
-                font-size: 16px;
-                font-weight: 500;
-                color: rgb(132, 94, 194);
-                line-height: 1;
-
-                position: relative;
-
-                margin-top: 16px;
-            }
-
-            a.overlay-link::before {
-                position: absolute;
-
-                content: "";
-
-                height: calc(50% + 4px);
-                width: calc(100% + 8px);
-
-                bottom: -4px;
-                left: -4px;
-
-                background-color: rgba(132, 94, 194, 0.1);
-            }
-
-            .overlay-body {
-                max-width: 512px;
-
-                text-align: center;
-
-                font-family: "Inter", sans-serif;
-            }
-
-            .overlay[hidden] {
-                display: none;
-            }
-
-            .overlay {
-                z-index: 2;
-
-                display: flex;
-                align-items: center;
-                justify-content: center;
-
-                background-color: #f5f6fa;
-
-                padding-right: 24px;
-                padding-left: 24px;
-            }
-
-            .scare {
-                z-index: 1;
-            }
-
-            video#video {
-                height: 100%;
-                width: 100%;
-
-                object-fit: cover;
-            }
-
-            video#video::-webkit-media-controls-enclosure {
-                display:none !important;
-            }
-        </style>
-    </head>
-    <body>
-        <div id="overlay" class="overlay">
-            <div class="overlay-body">
-                <p class="overlay-title">Cookies and user-generated content</p>
-
-                <p class="overlay-description">This website uses cookies to offer you the most relevant information and
-                                               better understand how you use this website. Please accept cookies for
-                                               optimal performance.</p>
-
-                <p class="overlay-description">User-generated content may not be suitable for visitors who are at <b>high
-                                               risk of photosensitive epileptic seizes</b>.</p>
-
-                <div class="overlay-buttons-wrapper">
-                    <div id="accept-button" class="overlay-button">Accept</div>
-                    <div id="decline-button" class="overlay-button">Decline</div>
-                </div>
-
-                <a href="https://tanziran.github.io/" target="_blank" class="overlay-link">home</a>
-            </div>
-        </div>
-
-        <div class="scare">
-            <video id="video" class="video" src="./video.mp4" loop></video>
-        </div>
-
-        <script type="text/javascript">
-            const video = document.getElementById("video");
-            const overlay = document.getElementById("overlay");
-            const declineButton = document.getElementById("decline-button");
-            const acceptButton = document.getElementById("accept-button");
-
-            let hasClicked;
-
-            window.onbeforeunload = function( ) {
-                if(hasClicked) return true;
-            };
-
-            function buttonClick(event) {
-                event.preventDefault();
-                if(!hasClicked) hasClicked = true;
-                overlay.hidden = true;
-                video.play();
-                videoClick();
-            }
-
-            function videoClick(event) {
-                if(event) event.preventDefault();
-                // if not fullscreen
-                const { documentElement } = document;
-                if(documentElement.requestFullscreen) documentElement.requestFullscreen();
-                else if(documentElement.mozRequestFullScreen) documentElement.mozRequestFullScreen();
-                else if(documentElement.webkitRequestFullscreen) documentElement.webkitRequestFullscreen();
-                else if(documentElement.msRequestFullscreen) documentElement.msRequestFullscreen();
-            }
-
-            acceptButton.addEventListener("click", buttonClick);
-            declineButton.addEventListener("click", buttonClick);
-            video.addEventListener("click", videoClick);
-        </script>
-    </body>
+</body>
 </html>
-
