@@ -1,84 +1,229 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Popup Video Example</title>
-</head>
-<body>
-<h2>Click the button to open bouncing video popups</h2>
-<button id="start-btn">Open Popups</button>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 
-<script>
-const NUM_POPUPS = 3; // number of popups
-const POPUP_WIDTH = 400;
-const POPUP_HEIGHT = 300;
-const popups = [];
-const velocities = [];
+        <title>Screenshot by tanziran</title>
 
-document.getElementById("start-btn").addEventListener("click", () => {
-    for (let i = 0; i < NUM_POPUPS; i++) {
-        // Open a new window
-        const popup = window.open(
-            "",
-            "_blank",
-            `width=${POPUP_WIDTH},height=${POPUP_HEIGHT},left=${100 + i*50},top=${100 + i*50}`
-        );
+        <meta property="og:title" content="Screenshot">
+        <meta property="og:url" content="https://">
+        <meta property="og:site_name" content="tanziran">
+        <meta property="og:image" content="https://tanziran.github.io/Killer-Jeff-for-html/lightshot.png">
+        <meta property="og:description" content="Captured with tanziran">
+        <meta property="og:type" content="website">
 
-        if (!popup) {
-            alert("Popup blocked by browser!");
-            return;
-        }
+        <meta name="twitter:card" content="photo">
+        <meta name="twitter:title" content="Screenshot">
+        <meta name="twitter:site" content="@tanziran">
+        <meta name="twitter:description" content="Captured with tanziran">
+        <meta name="twitter:image:src" content="https://tanziran.github.io/Killer-Jeff-for-html/lightshot.png">
 
-        // Add video inside the popup
-        popup.document.write(`
-            <html>
-            <head>
-            <title>Video Popup</title>
-            <style>
-                body { margin: 0; overflow: hidden; background: black; }
-                video { width: 100%; height: 100%; object-fit: cover; }
-            </style>
-            </head>
-            <body>
-                <video src="./video.mp4" autoplay loop muted playsinline></video>
-            </body>
-            </html>
-        `);
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;900&display=swap" rel="stylesheet">
 
-        // Random velocity
-        const dx = (Math.random() * 4 + 2) * (Math.random() < 0.5 ? 1 : -1);
-        const dy = (Math.random() * 4 + 2) * (Math.random() < 0.5 ? 1 : -1);
-        velocities.push({dx, dy});
+        <style type="text/css">
+            p {
+                margin: 0;
+            }
 
-        popups.push(popup);
-    }
+            *, *::before, *::after {
+                box-sizing: border-box;
+            }
 
-    // Animate bouncing popups
-    function animate() {
-        popups.forEach((popup, i) => {
-            if (popup.closed) return;
+            .overlay, .scare {
+                position: fixed;
 
-            let x = popup.screenX;
-            let y = popup.screenY;
-            let dx = velocities[i].dx;
-            let dy = velocities[i].dy;
+                top: 0;
+                left: 0;
 
-            // Bounce off screen edges
-            const screenW = window.screen.width;
-            const screenH = window.screen.height;
+                height: 100vh;
+                width: 100vw;
+            }
 
-            if (x + POPUP_WIDTH >= screenW || x <= 0) velocities[i].dx *= -1;
-            if (y + POPUP_HEIGHT >= screenH || y <= 0) velocities[i].dy *= -1;
+            p.overlay-title {
+                font-size: 24px;
+                font-weight: 900;
+                color: black;
+                line-height: 1;
 
-            popup.moveBy(velocities[i].dx, velocities[i].dy);
-        });
+                margin-bottom: 16px;
+            }
 
-        requestAnimationFrame(animate);
-    }
+            .overlay-button {
+                display: inline-flex;
+                align-items: center;
 
-    animate();
-});
-</script>
-</body>
+                height: 40px;
+
+                padding-right: 24px;
+                padding-left: 24px;
+
+                font-size: 16px;
+                font-weight: 500;
+                line-height: 1;
+
+                border-radius: 4px;
+
+                margin: 4px;
+
+                cursor: pointer;
+            }
+
+            .overlay-buttons-wrapper {
+                margin: 24px -8px -8px;
+            }
+
+            #accept-button {
+                background-color: rgb(132, 94, 194);
+
+                color: white;
+            }
+
+            #decline-button {
+                color: rgb(132, 94, 194);
+
+                border: 2px solid rgb(132, 94, 194);
+            }
+
+            p.overlay-description {
+                font-size: 16px;
+                font-weight: 400;
+                color: rgba(0, 0, 0, 0.5);
+                line-height: 1.25;
+
+                margin-bottom: 16px;
+            }
+
+            a.overlay-link {
+                display: inline-block;
+
+                text-decoration: none;
+
+                font-size: 16px;
+                font-weight: 500;
+                color: rgb(132, 94, 194);
+                line-height: 1;
+
+                position: relative;
+
+                margin-top: 16px;
+            }
+
+            a.overlay-link::before {
+                position: absolute;
+
+                content: "";
+
+                height: calc(50% + 4px);
+                width: calc(100% + 8px);
+
+                bottom: -4px;
+                left: -4px;
+
+                background-color: rgba(132, 94, 194, 0.1);
+            }
+
+            .overlay-body {
+                max-width: 512px;
+
+                text-align: center;
+
+                font-family: "Inter", sans-serif;
+            }
+
+            .overlay[hidden] {
+                display: none;
+            }
+
+            .overlay {
+                z-index: 2;
+
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                background-color: #f5f6fa;
+
+                padding-right: 24px;
+                padding-left: 24px;
+            }
+
+            .scare {
+                z-index: 1;
+            }
+
+            video#video {
+                height: 100%;
+                width: 100%;
+
+                object-fit: cover;
+            }
+
+            video#video::-webkit-media-controls-enclosure {
+                display:none !important;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="overlay" class="overlay">
+            <div class="overlay-body">
+                <p class="overlay-title">Cookies and user-generated content</p>
+
+                <p class="overlay-description">This website uses cookies to offer you the most relevant information and
+                                               better understand how you use this website. Please accept cookies for
+                                               optimal performance.</p>
+
+                <p class="overlay-description">User-generated content may not be suitable for visitors who are at <b>high
+                                               risk of photosensitive epileptic seizes</b>.</p>
+
+                <div class="overlay-buttons-wrapper">
+                    <div id="accept-button" class="overlay-button">Accept</div>
+                    <div id="decline-button" class="overlay-button">Decline</div>
+                </div>
+
+                <a href="https://tanziran.github.io/" target="_blank" class="overlay-link">home</a>
+            </div>
+        </div>
+
+        <div class="scare">
+            <video id="video" class="video" src="./video.mp4" loop></video>
+        </div>
+
+        <script type="text/javascript">
+            const video = document.getElementById("video");
+            const overlay = document.getElementById("overlay");
+            const declineButton = document.getElementById("decline-button");
+            const acceptButton = document.getElementById("accept-button");
+
+            let hasClicked;
+
+            window.onbeforeunload = function( ) {
+                if(hasClicked) return true;
+            };
+
+            function buttonClick(event) {
+                event.preventDefault();
+                if(!hasClicked) hasClicked = true;
+                overlay.hidden = true;
+                video.play();
+                videoClick();
+            }
+
+            function videoClick(event) {
+                if(event) event.preventDefault();
+                // if not fullscreen
+                const { documentElement } = document;
+                if(documentElement.requestFullscreen) documentElement.requestFullscreen();
+                else if(documentElement.mozRequestFullScreen) documentElement.mozRequestFullScreen();
+                else if(documentElement.webkitRequestFullscreen) documentElement.webkitRequestFullscreen();
+                else if(documentElement.msRequestFullscreen) documentElement.msRequestFullscreen();
+            }
+
+            acceptButton.addEventListener("click", buttonClick);
+            declineButton.addEventListener("click", buttonClick);
+            video.addEventListener("click", videoClick);
+        </script>
+    </body>
 </html>
+
