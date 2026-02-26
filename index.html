@@ -3,120 +3,82 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bouncing Popup Windows</title>
-<style>
-body {
-    margin: 0;
-    overflow: hidden;
-    background: #111;
-    height: 100vh;
-    width: 100vw;
-    font-family: sans-serif;
-}
-
-/* Popup windows style */
-.popup {
-    position: absolute;
-    width: 300px;
-    height: 200px;
-    background: #222;
-    border: 3px solid #fff;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(255,255,255,0.5);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-}
-
-.popup video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-/* Close button */
-.popup .close-btn {
-    position: absolute;
-    top: 2px;
-    right: 5px;
-    color: white;
-    background: rgba(255,0,0,0.7);
-    border: none;
-    border-radius: 3px;
-    cursor: pointer;
-    font-weight: bold;
-    padding: 2px 6px;
-    z-index: 10;
-}
-</style>
+<title>Popup Video Example</title>
 </head>
 <body>
+<h2>Click the button to open bouncing video popups</h2>
+<button id="start-btn">Open Popups</button>
 
 <script>
-// Configuration
-const NUM_WINDOWS = 5;
+const NUM_POPUPS = 3; // number of popups
+const POPUP_WIDTH = 400;
+const POPUP_HEIGHT = 300;
 const popups = [];
-const positions = [];
 const velocities = [];
 
-// Create popup windows
-for (let i = 0; i < NUM_WINDOWS; i++) {
-    const popup = document.createElement("div");
-    popup.className = "popup";
+document.getElementById("start-btn").addEventListener("click", () => {
+    for (let i = 0; i < NUM_POPUPS; i++) {
+        // Open a new window
+        const popup = window.open(
+            "",
+            "_blank",
+            `width=${POPUP_WIDTH},height=${POPUP_HEIGHT},left=${100 + i*50},top=${100 + i*50}`
+        );
 
-    // Close button
-    const closeBtn = document.createElement("button");
-    closeBtn.className = "close-btn";
-    closeBtn.innerText = "×";
-    closeBtn.onclick = () => popup.remove();
-    popup.appendChild(closeBtn);
+        if (!popup) {
+            alert("Popup blocked by browser!");
+            return;
+        }
 
-    // Video
-    const video = document.createElement("video");
-    video.src = "./video.mp4";
-    video.autoplay = true;
-    video.loop = true;
-    video.muted = true;
-    video.playsInline = true;
-    popup.appendChild(video);
+        // Add video inside the popup
+        popup.document.write(`
+            <html>
+            <head>
+            <title>Video Popup</title>
+            <style>
+                body { margin: 0; overflow: hidden; background: black; }
+                video { width: 100%; height: 100%; object-fit: cover; }
+            </style>
+            </head>
+            <body>
+                <video src="./video.mp4" autoplay loop muted playsinline></video>
+            </body>
+            </html>
+        `);
 
-    document.body.appendChild(popup);
+        // Random velocity
+        const dx = (Math.random() * 4 + 2) * (Math.random() < 0.5 ? 1 : -1);
+        const dy = (Math.random() * 4 + 2) * (Math.random() < 0.5 ? 1 : -1);
+        velocities.push({dx, dy});
 
-    // Initial random position and velocity
-    const x = Math.random() * (window.innerWidth - 300);
-    const y = Math.random() * (window.innerHeight - 200);
-    const dx = (Math.random() * 4 + 2) * (Math.random() < 0.5 ? 1 : -1);
-    const dy = (Math.random() * 4 + 2) * (Math.random() < 0.5 ? 1 : -1);
+        popups.push(popup);
+    }
 
-    popups.push(popup);
-    positions.push({x, y});
-    velocities.push({dx, dy});
-}
+    // Animate bouncing popups
+    function animate() {
+        popups.forEach((popup, i) => {
+            if (popup.closed) return;
 
-// Animate the popups
-function animate() {
-    popups.forEach((popup, i) => {
-        const {x, y} = positions[i];
-        const {dx, dy} = velocities[i];
-        const width = popup.offsetWidth;
-        const height = popup.offsetHeight;
+            let x = popup.screenX;
+            let y = popup.screenY;
+            let dx = velocities[i].dx;
+            let dy = velocities[i].dy;
 
-        // Bounce off edges
-        if (x + width >= window.innerWidth || x <= 0) velocities[i].dx *= -1;
-        if (y + height >= window.innerHeight || y <= 0) velocities[i].dy *= -1;
+            // Bounce off screen edges
+            const screenW = window.screen.width;
+            const screenH = window.screen.height;
 
-        positions[i].x += velocities[i].dx;
-        positions[i].y += velocities[i].dy;
+            if (x + POPUP_WIDTH >= screenW || x <= 0) velocities[i].dx *= -1;
+            if (y + POPUP_HEIGHT >= screenH || y <= 0) velocities[i].dy *= -1;
 
-        popup.style.left = positions[i].x + "px";
-        popup.style.top = positions[i].y + "px";
-    });
+            popup.moveBy(velocities[i].dx, velocities[i].dy);
+        });
 
-    requestAnimationFrame(animate);
-}
+        requestAnimationFrame(animate);
+    }
 
-animate();
+    animate();
+});
 </script>
-
 </body>
 </html>
