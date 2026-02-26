@@ -1,80 +1,68 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Bouncing Video</title>
-
+<title>Popup Demo (User-Initiated)</title>
 <style>
-    body {
-        margin: 0;
-        overflow: hidden;
-        background: black;
-    }
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #111;
+    color: white;
+    display: flex;
+    height: 100vh;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+  }
 
-    .video-box {
-        position: absolute;
-        width: 400px;
-        height: 300px;
-        cursor: pointer;
-    }
+  .warning {
+    background: red;
+    padding: 20px;
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    border-radius: 8px;
+  }
 
-    video {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        pointer-events: none;
-    }
+  button {
+    padding: 12px 24px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    border-radius: 6px;
+    background: purple;
+    color: white;
+  }
 </style>
 </head>
 <body>
 
+<div class="warning">
+⚠ This demo will open up to 3 popups. Click only if you want to proceed.
+</div>
+
+<button onclick="openPopup()">Open Popup</button>
+
 <script>
-function createVideo(x = 100, y = 100) {
-    const box = document.createElement("div");
-    box.className = "video-box";
-    box.style.left = x + "px";
-    box.style.top = y + "px";
+let popupCount = 0;
+const maxPopups = 3;
 
-    const vid = document.createElement("video");
-    vid.src = "./video.mp4";
-    vid.loop = true;
-    vid.autoplay = true;
-    vid.muted = true;
+function openPopup() {
+  if (popupCount >= maxPopups) {
+    alert("Popup limit reached.");
+    return;
+  }
 
-    box.appendChild(vid);
-    document.body.appendChild(box);
+  window.open(
+    "https://example.com",
+    "_blank",
+    "width=400,height=400"
+  );
 
-    let dx = 3 + Math.random() * 3;
-    let dy = 3 + Math.random() * 3;
-
-    function animate() {
-        let rect = box.getBoundingClientRect();
-        let nx = rect.left + dx;
-        let ny = rect.top + dy;
-
-        if (nx <= 0 || nx + rect.width >= window.innerWidth) dx *= -1;
-        if (ny <= 0 || ny + rect.height >= window.innerHeight) dy *= -1;
-
-        box.style.left = rect.left + dx + "px";
-        box.style.top = rect.top + dy + "px";
-
-        requestAnimationFrame(animate);
-    }
-
-    animate();
-
-    // Duplicate element when clicked (safe)
-    box.onclick = () => {
-        createVideo(
-            Math.random() * (window.innerWidth - 400),
-            Math.random() * (window.innerHeight - 300)
-        );
-    };
+  popupCount++;
 }
-
-createVideo();
 </script>
 
 </body>
